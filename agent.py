@@ -274,10 +274,10 @@ async def entrypoint(ctx: agents.JobContext):
             api_key=os.getenv("CARTESIA_API_KEY"),
             model="sonic-2",
             voice="794f9389‑aac1‑45b6‑b726‑9d9369183238",
-            sample_rate=24000,
-            language="en",
-            encoding="pcm_s16le"
-    )
+            #sample_rate=24000,
+            #language="en",
+            #encoding="pcm_s16le",
+        ),
         # Voice Activity Detection: Use prewarmed VAD if available
         vad=ctx.proc.userdata.get("vad", silero.VAD.load()),
         
