@@ -1,0 +1,98 @@
+# Dockerfile
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libffi-dev \
+    libssl-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Create directory for database
+RUN mkdir -p /app/data
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV DATABASE_PATH=/app/data/ai_interview_db.sqlite
+
+# Expose ports
+EXPOSE 8000
+EXPOSE 9090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run the application
+CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+
+---
+
+# docker-compose.yml
+version: '3.8'
+
+services:
+  ai-interview-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LIVEKIT_URL=${LIVEKIT_URL}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - CARTESIA_API_KEY=${CARTESIA_API_KEY}
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DATABASE_PATH=/app/data/ai_interview_db.sqlite
+    volumes:
+      - interview_data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  ai-interview-agent:
+    build: .
+    command: ["python", "agent.py"]
+    environment:
+      - LIVEKIT_URL=${LIVEKIT_URL}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - CARTESIA_API_KEY=${CARTESIA_API_KEY}
+      - DATABASE_PATH=/app/data/ai_interview_db.sqlite
+    volumes:
+      - interview_data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    depends_on:
+      - ai-interview-api
+
+volumes:
+  interview_data:
+    driver: local
+
+networks:
+  default:
+    name: ai-interview-network

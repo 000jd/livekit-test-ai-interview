@@ -1,0 +1,12 @@
+livekit
+livekit-agents
+livekit-plugins-deepgram
+livekit-plugins-cartesia
+livekit-plugins-google
+livekit-plugins-turn-detector
+livekit-api
+fastapi
+uvicorn[standard]
+python-dotenv
+python-multipart
+aiofiles

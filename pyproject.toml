@@ -1,0 +1,24 @@
+[project]
+name = "livekit-test-ai-interview"
+version = "0.1.0"
+description = "A LiveKit agent for conducting interviews."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "livekit>=0.15.0",
+    "livekit-agents>=1.0.0",
+    "livekit-api>=0.11.0",
+    "livekit-plugins-deepgram>=0.6.0",
+    "livekit-plugins-cartesia>=0.2.0",
+    "livekit-plugins-google>=0.2.0",
+    "livekit-plugins-silero>=0.2.0",
+    "livekit-plugins-turn-detector>=0.2.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",
+    "aiofiles>=23.0.0",
+    "pyjwt>=2.8.0",
+    "python-dotenv>=1.0.0",
+    "aiosqlite>=0.19.0",
+    "structlog>=23.0.0",
+]
