@@ -255,9 +255,9 @@ async def entrypoint(ctx: agents.JobContext):
             language="en",
             smart_format=True,
             interim_results=True,
-            utterance_end_ms=1000,
-            vad_events=True,
-            noise_reduction=True,
+            #utterance_end_ms=1000,
+            #vad_events=True,
+            #noise_reduction=True,
             profanity_filter=False,
         ),
         
@@ -270,15 +270,14 @@ async def entrypoint(ctx: agents.JobContext):
         ),
         
         # Text-to-Speech: Cartesia
-        tts=cartesia.TTS(
+        tts = cartesia.TTS(
             api_key=os.getenv("CARTESIA_API_KEY"),
-            voice="79a125e8-cd45-4c13-8a67-188112f4dd22",  # Professional female voice
-            model="sonic-english",
+            model="sonic-2",
+            voice="794f9389‑aac1‑45b6‑b726‑9d9369183238",
             sample_rate=24000,
-            speed=1.0,
-            emotion=["positivity:medium", "curiosity:medium"]
-        ),
-        
+            language="en",
+            encoding="pcm_s16le"
+    )
         # Voice Activity Detection: Use prewarmed VAD if available
         vad=ctx.proc.userdata.get("vad", silero.VAD.load()),
         
