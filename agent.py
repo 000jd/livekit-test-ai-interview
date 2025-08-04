@@ -273,7 +273,7 @@ async def entrypoint(ctx: agents.JobContext):
         tts = cartesia.TTS(
             api_key=os.getenv("CARTESIA_API_KEY"),
             model="sonic-2",
-            voice="794f9389‑aac1‑45b6‑b726‑9d9369183238",
+            voice="794f9389-aac1-45b6-b726-9d9369183238",
             #sample_rate=24000,
             #language="en",
             #encoding="pcm_s16le",

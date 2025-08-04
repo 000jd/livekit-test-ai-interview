@@ -3,10 +3,10 @@ name = "livekit-test-ai-interview"
 version = "0.1.0"
 description = "A LiveKit agent for conducting interviews."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "livekit>=0.15.0",
-    "livekit-agents>=1.0.0",
+    "livekit-agents[cartesia]>=1.0.1",
     "livekit-api>=0.11.0",
     "livekit-plugins-deepgram>=0.6.0",
     "livekit-plugins-cartesia>=0.2.0",
@@ -21,5 +21,5 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "aiosqlite>=0.19.0",
     "structlog>=23.0.0",
-    "torch>=2.7.1",
+    "torch>=2.1.0",
 ]
