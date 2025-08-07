@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; color: #1c1e21; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        #container { text-align: center; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        p { font-size: 16px; color: #606770; }
+        #status { margin-top: 20px; font-weight: bold; }
+        #error { color: #fa3e3e; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>AI Interview Session</h1>
+        <p>Please wait while we connect you to the interview room.</p>
+        <p id="status">Status: Initializing...</p>
+        <p id="error"></p>
+    </div>
+
+    <!-- LiveKit Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const errorEl = document.getElementById('error');
+
+        // The backend URL where our FastAPI server is running
+        const BACKEND_URL = 'http://localhost:8000'; 
+
+        async function joinInterview() {
+            try {
+                // 1. Get interview ID from the URL (e.g., ?id=...)
+                const params = new URLSearchParams(window.location.search);
+                const interviewId = params.get('id');
+
+                if (!interviewId) {
+                    throw new Error('No interview ID found in the URL.');
+                }
+                statusEl.textContent = 'Status: Found interview ID. Requesting session token...';
+
+                // 2. Call our new backend endpoint to get a token
+                const response = await fetch(`${BACKEND_URL}/interview/start_session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ interview_id: interviewId }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Failed to get session token: ${errorData.detail}`);
+                }
+
+                const sessionData = await response.json();
+                const { token, ws_url } = sessionData;
+                statusEl.textContent = 'Status: Token received. Connecting to interview room...';
+
+                // 3. Connect to the LiveKit room using the token
+                const room = new livekit.Room({
+                    // adaptiveStream: true, // Optional: for better performance on flaky networks
+                });
+
+                await room.connect(ws_url, token);
+                statusEl.textContent = 'Status: Connected! The interview will begin shortly.';
+                
+                // 4. Handle tracks from the AI agent (and publish our own)
+                room.on(livekit.RoomEvent.TrackSubscribed, (track) => {
+                    if (track.kind === 'audio') {
+                        const audioElement = track.attach();
+                        document.body.appendChild(audioElement);
+                    }
+                });
+
+                // 5. Publish user's microphone audio
+                await room.localParticipant.setMicrophoneEnabled(true);
+                console.log('Successfully connected to room and published microphone.');
+
+            } catch (err) {
+                console.error('Error joining interview:', err);
+                statusEl.textContent = 'Status: Failed to connect.';
+                errorEl.textContent = `Error: ${err.message}`;
+            }
+        }
+
+        window.onload = joinInterview;
+    </script>
+</body>
+</html>

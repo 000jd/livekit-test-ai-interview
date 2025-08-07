@@ -4,8 +4,9 @@ import logging
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import Agent, AgentSession, function_tool, RunContext
-from livekit.plugins import deepgram, cartesia, google, silero
+from livekit.plugins import deepgram, cartesia, google, silero, elevenlabs
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
+from livekit.plugins import groq
 import os
 import datetime
 import json
@@ -268,12 +269,22 @@ async def entrypoint(ctx: agents.JobContext):
             temperature=0.7,
             max_output_tokens=1024,
         ),
-        
+    
         # Text-to-Speech: Cartesia
-        tts = cartesia.TTS(
-            api_key=os.getenv("CARTESIA_API_KEY"),
-            model="sonic-2",
-            voice="794f9389-aac1-45b6-b726-9d9369183238",
+        #tts = cartesia.TTS(
+        #    api_key=os.getenv("CARTESIA_API_KEY"),
+        #    model="sonic-2",
+        #    voice="794f9389-aac1-45b6-b726-9d9369183238",
+            #sample_rate=24000,
+            #language="en",
+            #encoding="pcm_s16le",
+        #),
+        tts = elevenlabs.TTS(
+            api_key=os.getenv("ELEVENLABS_API_KEY"),
+            voice_id="ODq5zmih8GrVes37Dizd",
+            model="eleven_multilingual_v2"
+            #model="sonic-2",
+            #voice="794f9389-aac1-45b6-b726-9d9369183238",
             #sample_rate=24000,
             #language="en",
             #encoding="pcm_s16le",
